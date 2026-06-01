@@ -9,6 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const SECRET_PLACEHOLDER = "********";
 
+function placeholderFor(def: EnvVarDef): string {
+  if (def.default) return `default: ${def.default}`;
+  // Some fields are typed "url" in the manifest but actually expect a bare
+  // IP address or hostname — a https://… example is misleading for those.
+  if (/ip address or hostname/i.test(def.description)) {
+    return "e.g. 192.0.2.1 or mgmt.example.com";
+  }
+  if (def.type === "url") return "https://…";
+  return "";
+}
+
 type Value = string | boolean;
 
 export interface ConfigFormState {
@@ -130,8 +141,8 @@ export function ConfigForm({ server, onSave }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="space-y-2.5">
         {server.definition.env_vars.length === 0 && (
           <p className="text-sm text-muted-foreground">This server has no documented environment variables. Use CLI args below if needed.</p>
         )}
@@ -212,7 +223,7 @@ function Field({ def, value, visible, revealLoading, onToggleVisible, onChange }
   const isPassword = def.type === "password" || def.secret;
   const inputType = isPassword && !visible ? "password" : def.type === "integer" ? "number" : "text";
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <Label className="flex items-center gap-2">
         {def.label}
         {def.required && <span className="text-destructive">*</span>}
@@ -222,7 +233,7 @@ function Field({ def, value, visible, revealLoading, onToggleVisible, onChange }
         <Input
           type={inputType}
           value={String(value)}
-          placeholder={def.default ? `default: ${def.default}` : (def.type === "url" ? "https://…" : "")}
+          placeholder={placeholderFor(def)}
           onChange={(e) => onChange(e.target.value)}
         />
         {isPassword && (

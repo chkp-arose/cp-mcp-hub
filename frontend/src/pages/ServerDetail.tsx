@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ConfigForm } from "@/components/ConfigForm";
 import { LogViewer } from "@/components/LogViewer";
 import { CopyButton } from "@/components/CopyButton";
-import { ConnectSnippet } from "@/components/ConnectSnippet";
+import { ConnectSnippet, type SnippetServer } from "@/components/ConnectSnippet";
 
 type Action = "start" | "stop" | "restart";
 
@@ -25,6 +25,7 @@ export function ServerDetail() {
   const [server, setServer] = useState<ServerDetailT | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [sseUrl, setSseUrl] = useState<string | null>(null);
+  const [enabledServers, setEnabledServers] = useState<SnippetServer[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState<Action | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -32,10 +33,26 @@ export function ServerDetail() {
 
   const refresh = useCallback(async () => {
     try {
-      const [s, t, st] = await Promise.all([api.getServer(id), api.getToken(), api.serverStatus(id)]);
+      const [s, t, st, list] = await Promise.all([
+        api.getServer(id),
+        api.getToken(),
+        api.serverStatus(id),
+        api.listServers(),
+      ]);
       setServer(s);
       setToken(t.token);
-      setSseUrl(new URL(st.sse_url, window.location.origin).toString());
+      const currentSseUrl = new URL(st.sse_url, window.location.origin).toString();
+      setSseUrl(currentSseUrl);
+      // Every server's SSE endpoint shares the same base; derive it from this
+      // server's URL so the consolidated snippet works under EXTERNAL_BASE_URL
+      // and TLS without an extra round-trip per server.
+      const sseBase = currentSseUrl.replace(/\/servers\/[^/]+\/sse$/, "");
+      setEnabledServers(
+        list.servers
+          .filter((sv) => sv.enabled)
+          .sort((a, b) => a.display_name.localeCompare(b.display_name))
+          .map((sv) => ({ id: sv.id, sseUrl: `${sseBase}/servers/${sv.id}/sse` })),
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "load failed");
     }
@@ -102,34 +119,43 @@ export function ServerDetail() {
       {error && <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</div>}
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuration</CardTitle>
-            <CardDescription>Environment variables for <code className="font-mono text-xs">{server.definition.npm_package}</code></CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ConfigForm
-              server={server}
-              onSave={async (state) => {
-                await api.updateConfig(id, {
-                  config: state.config,
-                  cli_args: state.cli_args,
-                  telemetry_enabled: state.telemetry_enabled,
-                  restart_policy: state.restart_policy,
-                });
-                await refresh();
-              }}
-            />
-          </CardContent>
-        </Card>
+        <div className="space-y-4 flex flex-col">
+          <Card>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle>Configuration</CardTitle>
+              <CardDescription>Environment variables for <code className="font-mono text-xs">{server.definition.npm_package}</code></CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <ConfigForm
+                server={server}
+                onSave={async (state) => {
+                  await api.updateConfig(id, {
+                    config: state.config,
+                    cli_args: state.cli_args,
+                    telemetry_enabled: state.telemetry_enabled,
+                    restart_policy: state.restart_policy,
+                  });
+                  await refresh();
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          <ConnectSnippet
+            servers={sseUrl ? [{ id, sseUrl }] : []}
+            token={token}
+            title="Connect this server"
+            description="Copy-paste configuration for just this server."
+          />
+        </div>
 
         <div className="space-y-4 flex flex-col">
           <Card>
-            <CardHeader>
+            <CardHeader className="p-4 pb-2">
               <CardTitle>Endpoint</CardTitle>
               <CardDescription>Connect an MCP client to this server.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-4 pt-0 space-y-3">
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">SSE URL</p>
                 <div className="flex gap-2 items-center">
@@ -193,9 +219,14 @@ export function ServerDetail() {
             </CardContent>
           </Card>
 
-          <ConnectSnippet serverId={id} sseUrl={sseUrl} token={token} />
+          <ConnectSnippet
+            servers={enabledServers}
+            token={token}
+            title="Connect all enabled servers"
+            description="One configuration covering every server currently enabled on the hub."
+          />
 
-          <div className="flex-1 min-h-[400px]">
+          <div className="h-[480px]">
             <LogViewer serverId={id} />
           </div>
         </div>

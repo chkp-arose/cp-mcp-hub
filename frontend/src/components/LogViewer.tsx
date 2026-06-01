@@ -50,7 +50,7 @@ export function LogViewer({ serverId }: Props) {
   const visible = useMemo(() => lines, [lines]);
 
   return (
-    <div className="flex flex-col h-full min-h-[400px] border rounded-md bg-card">
+    <div className="flex flex-col h-full border rounded-md bg-card">
       <div className="flex items-center justify-between p-2 border-b">
         <span className="text-sm font-medium text-muted-foreground">Live logs ({lines.length})</span>
         <div className="flex gap-1">
@@ -60,7 +60,7 @@ export function LogViewer({ serverId }: Props) {
           <Button size="sm" variant="outline" onClick={() => setLines([])}>Clear</Button>
         </div>
       </div>
-      <div ref={containerRef} className="flex-1 overflow-auto p-2 font-mono text-xs leading-snug">
+      <div ref={containerRef} className="flex-1 overflow-y-scroll overflow-x-auto p-2 font-mono text-xs leading-snug">
         {visible.map((e, i) => (
           <div key={i} className={
             e.stream === "stderr" ? "text-destructive" :

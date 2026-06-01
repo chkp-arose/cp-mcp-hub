@@ -121,6 +121,8 @@ open http://localhost:8090     # macOS
 
 Once you've enabled a server in the UI, copy the **SSE URL** and the **Bearer token** from its detail page.
 
+> 💡 **Connecting more than one server?** Every server's detail page also has a **Connect all enabled servers** panel. It generates a single configuration covering every server currently enabled on the hub — paste it once instead of repeating the steps below per server. The Claude Code tab offers both separate and chained command formats.
+
 ### Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) and add an entry that bridges through `mcp-remote`:
