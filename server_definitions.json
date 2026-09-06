@@ -1,7 +1,7 @@
 {
   "version": "1",
-  "generated_at": "2026-06-01T15:56:28+00:00",
-  "source_commit": "99ac2207f6e749d02d6052f2ded1d963569089a5",
+  "generated_at": "2026-09-06T07:23:44+00:00",
+  "source_commit": "5778afac7a5400b64406d145756e570558a68635",
   "servers": [
     {
       "id": "argos-erm",
@@ -42,6 +42,72 @@
       "cli_args": []
     },
     {
+      "id": "checkpoint-waf",
+      "display_name": "Checkpoint Waf",
+      "npm_package": "@chkp/checkpoint-waf-mcp",
+      "description": "Publish and enforce configuration changes with safety confirmations. Execute any GraphQL query/mutation against Check Point WAF API.",
+      "doc_url": "https://github.com/CheckPointSW/mcp-servers/tree/main/packages/checkpoint-waf",
+      "icon": "shield",
+      "env_vars": [
+        {
+          "name": "WAF_CLIENT_ID",
+          "label": "Waf Client Id",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Check Point WAF client ID for authentication",
+          "default": null
+        },
+        {
+          "name": "WAF_ACCESS_KEY",
+          "label": "Waf Access Key",
+          "type": "password",
+          "required": false,
+          "secret": true,
+          "description": "Check Point WAF access key for authentication",
+          "default": null
+        },
+        {
+          "name": "WAF_REGION",
+          "label": "Waf Region",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Check Point WAF region (default: `EU`)",
+          "default": "`EU`"
+        },
+        {
+          "name": "DEV",
+          "label": "Dev",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Development (dev-cloudinfra-gw.kube1.iaas.checkpoint.com)",
+          "default": null
+        },
+        {
+          "name": "WAF_ALLOW_WRITES",
+          "label": "Waf Allow Writes",
+          "type": "boolean",
+          "required": false,
+          "secret": false,
+          "description": "Enable write operations (default: unset = read-only). Set to `true` to expose `manage_objects` and `publish_and_enforce` and allow GraphQL mutations via `call_waf_api`. Equivalent to passing `--allow-writes` on the command line.",
+          "default": "unset = read-only"
+        }
+      ],
+      "cli_args": []
+    },
+    {
+      "id": "cloudguard-waf",
+      "display_name": "Cloudguard Waf",
+      "npm_package": "@chkp/cloudguard-waf-mcp",
+      "description": "This package has been renamed to @chkp/checkpoint-waf-mcp",
+      "doc_url": "https://github.com/CheckPointSW/mcp-servers/tree/main/packages/cloudguard-waf",
+      "icon": "shield",
+      "env_vars": [],
+      "cli_args": []
+    },
+    {
       "id": "cpinfo-analysis",
       "display_name": "Cpinfo Analysis",
       "npm_package": "@chkp/cpinfo-analysis-mcp",
@@ -58,6 +124,26 @@
           "description": "Override the idle eviction window (default: 10,800,000 ms \u2248 3 hours).",
           "default": "10,800,000 ms \u2248 3 hours"
         },
+        {
+          "name": "LOG_LEVEL",
+          "label": "Log Level",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Example: info",
+          "default": null
+        }
+      ],
+      "cli_args": []
+    },
+    {
+      "id": "cpview-history",
+      "display_name": "Cpview History",
+      "npm_package": "@chkp/cpview-history-mcp",
+      "description": "Stateless tool interface \u2014 every tool takes the database path as an argument. Read-only by construction \u2014 SQLite opened with immutable=1; no writes, no locking, safe on SMB/network shares.",
+      "doc_url": "https://github.com/CheckPointSW/mcp-servers/tree/main/packages/cpview-history-mcp",
+      "icon": "shield",
+      "env_vars": [
         {
           "name": "LOG_LEVEL",
           "label": "Log Level",
@@ -113,6 +199,44 @@
           "secret": false,
           "description": "Short region code \u2014 `EU`, `US`, `STG`, or `LOCAL` (default: `EU`). Use this instead of `AUTH_URL` for backwards-compatible configurations.",
           "default": "`EU`"
+        }
+      ],
+      "cli_args": []
+    },
+    {
+      "id": "harmony-email",
+      "display_name": "Harmony Email",
+      "npm_package": "@chkp/harmony-email-mcp",
+      "description": "get_entity - the structured record: per-engine verdicts, restore flags, action history, available actions.",
+      "doc_url": "https://github.com/CheckPointSW/mcp-servers/tree/main/packages/harmony-email",
+      "icon": "shield",
+      "env_vars": [
+        {
+          "name": "HEC_DOMAIN",
+          "label": "Hec Domain",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Example: your-tenant.avanan.net",
+          "default": null
+        },
+        {
+          "name": "HEC_CLIENT_ID",
+          "label": "Hec Client Id",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Example: your-client-id",
+          "default": null
+        },
+        {
+          "name": "HEC_SECRET",
+          "label": "Hec Secret",
+          "type": "password",
+          "required": false,
+          "secret": true,
+          "description": "Example: your-secret",
+          "default": null
         }
       ],
       "cli_args": []
@@ -693,6 +817,44 @@
           "required": false,
           "secret": true,
           "description": "Password for authentication (if using username/password authentication)",
+          "default": null
+        }
+      ],
+      "cli_args": []
+    },
+    {
+      "id": "workforce-ai",
+      "display_name": "Workforce Ai",
+      "npm_package": "@chkp/workforce-ai-mcp",
+      "description": "\u2705 Policy inspection \u2014 list rulebases for Chats (GenAI DLP), AI Access, Web Access, Agents, Secure Browsing, and Browse DLP.",
+      "doc_url": "https://github.com/CheckPointSW/mcp-servers/tree/main/packages/workforce-ai",
+      "icon": "shield",
+      "env_vars": [
+        {
+          "name": "CP_CI_CLIENT_ID",
+          "label": "Cp Ci Client Id",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Example: YOUR_CLIENT_ID",
+          "default": null
+        },
+        {
+          "name": "CP_CI_ACCESS_KEY",
+          "label": "Cp Ci Access Key",
+          "type": "password",
+          "required": false,
+          "secret": true,
+          "description": "Example: YOUR_ACCESS_KEY",
+          "default": null
+        },
+        {
+          "name": "CP_CI_GATEWAY",
+          "label": "Cp Ci Gateway",
+          "type": "string",
+          "required": false,
+          "secret": false,
+          "description": "Example: https://cloudinfra-gw-us.portal.checkpoint.com",
           "default": null
         }
       ],
